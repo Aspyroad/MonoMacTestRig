@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
 
+using Sample.WithBlocking;
+
 namespace MonoMacTest
 {
 
@@ -58,13 +60,16 @@ namespace MonoMacTest
 		partial void btn_execute(NSObject sender)
 		{
 			//avoid cross thread accessing of controls by storing values from controls in variables     
-			int lower = int.Parse(this.txtLow.StringValue);
-			int upper = int.Parse(this.txtHigh.StringValue);
+			//int lower = int.Parse(this.txtLow.StringValue);
+			//int upper = int.Parse(this.txtHigh.StringValue);
 
 
 			// New task version		
-			Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
-				.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
+			//Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
+			//	.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
+			
+			var obj = new Sample.WithBlocking.BlockingCollectionClass();
+			this.txtView.Value = obj.WithBlocking();
 
 			// Original, blocks the UI thread
 			//this.txtView.Value += this.getPrimesInRange(int.Parse(this.txtLow.StringValue), int.Parse(this.txtHigh.StringValue)).Count().ToString() + Environment.NewLine;
