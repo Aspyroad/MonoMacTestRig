@@ -1,0 +1,226 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1FF743B20000000000000000 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 238850500000000000000000 /* Cocoa.framework */; };
+		1FC460960000000000000000 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23556D340000000000000000 /* Foundation.framework */; };
+		33F70F590000000000000000 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37881BF70000000000000000 /* MainWindow.xib */; };
+		13DD9DCB0000000000000000 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 176EAA690000000000000000 /* MainMenu.xib */; };
+		375538DB0000000000000000 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3AE645790000000000000000 /* Info.plist */; };
+		AA6A99600000000000000000 /* MainWindow.h in Sources */ = {isa = PBXBuildFile; fileRef = E37B63400000000000000000 /* MainWindow.h */; };
+		2DEB618A0000000000000000 /* MainWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 317C6E280000000000000000 /* MainWindow.m */; };
+		6AFD6C000000000000000000 /* MainWindowController.h in Sources */ = {isa = PBXBuildFile; fileRef = A40E35E00000000000000000 /* MainWindowController.h */; };
+		A0E004200000000000000000 /* MainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9F0CE000000000000000000 /* MainWindowController.m */; };
+		3D78E28B0000000000000000 /* AppDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 109EF2900000000000000000 /* AppDelegate.h */; };
+		2D52B8360000000000000000 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 30E3C4D40000000000000000 /* AppDelegate.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		300572260000000000000000 /* MonoMacTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "MonoMacTest.app"; path = "MonoMacTest.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		238850500000000000000000 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "Cocoa.framework"; path = "System/Library/Frameworks/Cocoa.framework"; sourceTree = SDKROOT; };
+		23556D340000000000000000 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "Foundation.framework"; path = "System/Library/Frameworks/Foundation.framework"; sourceTree = SDKROOT; };
+		37881BF70000000000000000 /* MainWindow.xib */ = {isa = PBXFileReference; name = "MainWindow.xib"; path = "MainWindow.xib"; sourceTree = "<group>"; };
+		176EAA690000000000000000 /* MainMenu.xib */ = {isa = PBXFileReference; name = "MainMenu.xib"; path = "MainMenu.xib"; sourceTree = "<group>"; };
+		3AE645790000000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info.plist"; path = "Info.plist"; sourceTree = "<group>"; };
+		E37B63400000000000000000 /* MainWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MainWindow.h"; path = "MainWindow.h"; sourceTree = "<group>"; };
+		317C6E280000000000000000 /* MainWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "MainWindow.m"; path = "MainWindow.m"; sourceTree = "<group>"; };
+		A40E35E00000000000000000 /* MainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MainWindowController.h"; path = "MainWindowController.h"; sourceTree = "<group>"; };
+		D9F0CE000000000000000000 /* MainWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "MainWindowController.m"; path = "MainWindowController.m"; sourceTree = "<group>"; };
+		109EF2900000000000000000 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AppDelegate.h"; path = "AppDelegate.h"; sourceTree = "<group>"; };
+		30E3C4D40000000000000000 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "AppDelegate.m"; path = "AppDelegate.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2AF833E30000000000000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1FF743B20000000000000000 /* Cocoa.framework in Frameworks */,
+				1FC460960000000000000000 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B11A57100000000000000000 = {
+			isa = PBXGroup;
+			children = (
+				35AB59BD0000000000000000 /* MonoMacTest */,
+				1955D7E90000000000000000 /* Frameworks */,
+				5E7F97000000000000000000 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5E7F97000000000000000000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				300572260000000000000000 /* MonoMacTest.app */,
+			);
+			name = "Products";
+			sourceTree = "<group>";
+		};
+		1955D7E90000000000000000 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				23556D340000000000000000 /* Foundation.framework */,
+				238850500000000000000000 /* Cocoa.framework */,
+			);
+			name = "Frameworks";
+			sourceTree = "<group>";
+		};
+		35AB59BD0000000000000000 /* MonoMacTest */ = {
+			isa = PBXGroup;
+			children = (
+				109EF2900000000000000000 /* AppDelegate.h */,
+				3AE645790000000000000000 /* Info.plist */,
+				176EAA690000000000000000 /* MainMenu.xib */,
+				E37B63400000000000000000 /* MainWindow.h */,
+				37881BF70000000000000000 /* MainWindow.xib */,
+				A40E35E00000000000000000 /* MainWindowController.h */,
+				3A807F410000000000000000 /* Supporting Files */,
+			);
+			name = "MonoMacTest";
+			sourceTree = "<group>";
+		};
+		3A807F410000000000000000 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				30E3C4D40000000000000000 /* AppDelegate.m */,
+				317C6E280000000000000000 /* MainWindow.m */,
+				D9F0CE000000000000000000 /* MainWindowController.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		24B9A2F80000000000000000 /* MonoMacTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 25524C4C0000000000000000 /* Build configuration list for PBXNativeTarget "MonoMacTest" */;
+			buildPhases = (
+				1591E82F0000000000000000 /* Sources */,
+				2AF833E30000000000000000 /* Frameworks */,
+				3E7C87BA0000000000000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MonoMacTest";
+			productName = "MonoMacTest";
+			productReference = 300572260000000000000000 /* MonoMacTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1A067D1E0000000000000000 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 170E19D40000000000000000 /* Build configuration list for PBXProject "MonoMacTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B11A57100000000000000000;
+			productRefGroup = 5E7F97000000000000000000 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				24B9A2F80000000000000000 /* MonoMacTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3E7C87BA0000000000000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33F70F590000000000000000 /* MainWindow.xib in Resources */,
+				13DD9DCB0000000000000000 /* MainMenu.xib in Resources */,
+				375538DB0000000000000000 /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1591E82F0000000000000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA6A99600000000000000000 /* MainWindow.h in Sources */,
+				2DEB618A0000000000000000 /* MainWindow.m in Sources */,
+				6AFD6C000000000000000000 /* MainWindowController.h in Sources */,
+				A0E004200000000000000000 /* MainWindowController.m in Sources */,
+				3D78E28B0000000000000000 /* AppDelegate.h in Sources */,
+				2D52B8360000000000000000 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		188A4B790000000000000000 /* MonoMac */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				SDKROOT = macosx;
+			};
+			name = MonoMac;
+		};
+		C5AF3FA00000000000000000 /* MonoMac */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				PRODUCT_NAME = "MonoMacTest";
+				WRAPPER_EXTENSION = app;
+			};
+			name = MonoMac;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		170E19D40000000000000000 /* Build configuration list for PBXProject "MonoMacTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				188A4B790000000000000000 /* MonoMac */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = MonoMac;
+		};
+		25524C4C0000000000000000 /* Build configuration list for PBXNativeTarget "MonoMacTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5AF3FA00000000000000000 /* MonoMac */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = MonoMac;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1A067D1E0000000000000000 /* Project object */;
+}
