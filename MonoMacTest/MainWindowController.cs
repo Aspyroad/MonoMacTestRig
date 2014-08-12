@@ -70,6 +70,7 @@ namespace MonoMacTest
 			
 			var obj = new Sample.WithBlocking.BlockingCollectionClass();
 			this.txtView.Value = obj.WithBlocking();
+			//this.txtView.Value = obj.WithBounding();
 
 			// Original, blocks the UI thread
 			//this.txtView.Value += this.getPrimesInRange(int.Parse(this.txtLow.StringValue), int.Parse(this.txtHigh.StringValue)).Count().ToString() + Environment.NewLine;

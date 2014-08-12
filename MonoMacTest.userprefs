@@ -1,12 +1,11 @@
-﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="11/08/2014 11:50:45 AM">
+﻿<Properties MonoDevelop.MonoMac.LastXamMacNagTime="11/08/2014 11:51:49 PM">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="MonoMacTest/BlockingCollection.cs">
     <Files>
       <File FileName="MonoMacTest/Main.cs" Line="1" Column="1" />
-      <File FileName="MonoMacTest/MainWindow.designer.cs" Line="1" Column="1" />
       <File FileName="MonoMacTest/AppDelegate.cs" Line="1" Column="1" />
-      <File FileName="MonoMacTest/MainWindowController.cs" Line="1" Column="1" />
-      <File FileName="MonoMacTest/BlockingCollection.cs" Line="1" Column="1" />
+      <File FileName="MonoMacTest/MainWindowController.cs" Line="23" Column="23" />
+      <File FileName="MonoMacTest/BlockingCollection.cs" Line="2" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

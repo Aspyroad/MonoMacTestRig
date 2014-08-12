@@ -61,8 +61,7 @@ namespace Sample.WithBlocking
 			var stage1 = new BlockingCollection<int>();
 			var stage2 = new BlockingCollection<int>();
 
-			//Pulls numbers from the array
-			// Technically the producer
+			//Producer - Pulls numbers from the array
 			var task0 = Task.Factory.StartNew(() =>
 			{
 				foreach (int i in items)
@@ -76,9 +75,8 @@ namespace Sample.WithBlocking
 				stage1.CompleteAdding();
 
 			});
-			
-			//Consumer First Worker
-			//Reads and passes data onto next stage
+
+			// Consumer1 - Reads and passes data onto next stage
 			var task1 = Task.Factory.StartNew(() =>
 			{
 
@@ -86,18 +84,17 @@ namespace Sample.WithBlocking
 				{
 					stage2.Add(i);
 					
+					//Pause 2 seconds simulating work
+					Thread.Sleep(new TimeSpan(0, 0, 3));
 					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
-						+ " Consumer1 - Stage 1 WORKING!! Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
-					
-					//Pause 2 seconds simulating work!!!!!****************The real process is finally being done!
-					Thread.Sleep(new TimeSpan(0, 0, 1));
+						+ " Consumer1 - Stage 1 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+				
 				}
 				message += "Consumer1 Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
 			});
 			
-			//Consumer
-			//Reads prints data
+			// Consumer2 - Reads prints data
 			var task2 = Task.Factory.StartNew(() =>
 			{
 				int i = -1;
@@ -112,13 +109,13 @@ namespace Sample.WithBlocking
 						message += "Consumer2 Emptied all items from Stage 2..." + Environment.NewLine;
 						break;
 					}
-					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
-						+ " Consumer2 - Stage 2 WORKING!! Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
 					//Pause a little over half second to simulate work
-					Thread.Sleep(new TimeSpan(0, 0, 0, 0, 600));
-				}
+					Thread.Sleep(new TimeSpan(0, 0, 0, 0, 900));
+					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
+						+ " Consumer2 - Stage 2 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
+				}
 			});
 
 			Task.WaitAll(task0, task1, task2);
@@ -130,7 +127,8 @@ namespace Sample.WithBlocking
 		/*
 		One other interesting constructor parameter is a bounding value. 
 		The Sample.WithBounding demonstrates BlockingCollection Bounding.
-		Earlier in my manufacturing analogy I mentioned material piling up in a stage of the assembly line requiring the prior stage to halt until the pile was consumed. 
+		Earlier in my manufacturing analogy I mentioned material piling up 
+		in a stage of the assembly line requiring the prior stage to halt until the pile was consumed. 
 		Bounding exists to define the size of the pile.
 		You'll get some interesting results when executing this sample. 
 		Steps in Task 1 and 2 will complete before Task0 finishes loading the Stage1 BlockingCollection. 
@@ -145,9 +143,9 @@ namespace Sample.WithBlocking
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			var startTime = DateTime.Now;
 
-			message += "Starting...WithBounding" + Environment.NewLine;
+			message += "Producer...Starting...WithBounding" + Environment.NewLine;
 
-			var stage1 = new BlockingCollection<int>(2);
+			var stage1 = new BlockingCollection<int>(1);
 			var stage2 = new BlockingCollection<int>();
 
 			//Pulls numbers from the array
@@ -156,10 +154,11 @@ namespace Sample.WithBlocking
 				foreach (int i in items)
 				{
 					stage1.Add(i);
-					message += ("Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
+					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
+						+ " Producer - Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
 				}
 
-				message += "Loaded all items into stage 1..." + Environment.NewLine;
+				message += "Producer - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
 
 			});
@@ -172,12 +171,14 @@ namespace Sample.WithBlocking
 				{
 					stage2.Add(i);
 
-					message += ("Stage 1 Process: " + i.ToString() + "elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
-
 					//Pause 2 seconds simulating work
 					Thread.Sleep(new TimeSpan(0, 0, 2));
+					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
+						+ " Consumer1 - Stage 1 Work Complete: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+
 				}
-				message += "Emptied all items from Stage 1..." + Environment.NewLine;
+
+				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
 			});
 
@@ -193,13 +194,15 @@ namespace Sample.WithBlocking
 					}
 					catch (InvalidOperationException)
 					{
-						message += "Emptied all items from Stage 2..." + Environment.NewLine;
+						message += "Consumer2 - Emptied all items from Stage 2..." + Environment.NewLine;
 						break;
 					}
-					message += ("Stage 2 Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
-					
+
 					//Pause a little over half second to simulate work
 					Thread.Sleep(new TimeSpan(0, 0, 0, 0, 600));
+					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
+						+  " Consumer2 - Stage 2 Work Complete: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+				
 				}
 
 			});
