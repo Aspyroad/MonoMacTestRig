@@ -134,7 +134,9 @@ namespace Sample.WithBlocking
 				}
 			});
 
-			Task.WaitAll(task0, task1, task2);
+			
+			Task.WhenAll(task0, task1, task2);
+			
 			message += "Consumer2 Completed." + Environment.NewLine;
 			
 			return message;
