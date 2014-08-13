@@ -19,6 +19,7 @@ namespace Sample.WithBlocking
 		
 		object lockObject = new object();
 		private string _message= "";
+		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " BlockingClass." + Environment.NewLine;
 		
 		public BlockingCollectionClass()
 		{
@@ -69,6 +70,7 @@ namespace Sample.WithBlocking
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			var startTime = DateTime.Now;
 
+			message += mesheader;
 			message += "Starting...WithBlocking" + Environment.NewLine;
 
 			var stage1 = new BlockingCollection<int>();
@@ -133,7 +135,7 @@ namespace Sample.WithBlocking
 			});
 
 			Task.WaitAll(task0, task1, task2);
-			message += "Consumer2 Completed. Fuckoff!" + Environment.NewLine;
+			message += "Consumer2 Completed." + Environment.NewLine;
 			
 			return message;
 		}

@@ -16,7 +16,12 @@ namespace MonoMacTest
 
 	public partial class MainWindowController : MonoMac.AppKit.NSWindowController
 	{
+
+		NSAction UpdateUI;
 		private TaskScheduler scheduler = null;
+		private string message = "";
+		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " MainForm." + Environment.NewLine;
+		private int counter;
 				
 		#region Constructors
 
@@ -44,6 +49,7 @@ namespace MonoMacTest
 		{
 			// Need to learn a little more about this task scheduler
 			this.scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			UpdateUI = _updateUI;
 		}
 
 		#endregion
@@ -56,6 +62,18 @@ namespace MonoMacTest
 				return (MainWindow)base.Window;
 			}
 		}
+
+		private void OnNewMessage(object sender, LogDataEventArgs  e) 
+		{
+			counter += 1;
+			this.message = mesheader + e.Message;
+			this.txtView.BeginInvokeOnMainThread(UpdateUI);
+		}
+
+		void _updateUI()
+		{
+			txtView.Value = counter.ToString();
+		}
 		
 		partial void btn_execute(NSObject sender)
 		{
@@ -67,11 +85,13 @@ namespace MonoMacTest
 			// New task version		
 			//Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
 			//	.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
-			
+			string message = "";
 			var obj = new Sample.WithBlocking.BlockingCollectionClass();
-			obj.Log += new BlockingCollectionClass.LogHandler((s,e) => (this.txtView.Value = e.Message));
-			
+			obj.Log += new BlockingCollectionClass.LogHandler(OnNewMessage);
+
 			obj.WithBlocking();
+
+			//this.txtView.Value = message;
 			//this.txtView.Value = obj.WithBounding();
 
 			// Original, blocks the UI thread
