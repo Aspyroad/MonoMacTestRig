@@ -69,7 +69,9 @@ namespace MonoMacTest
 			//	.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
 			
 			var obj = new Sample.WithBlocking.BlockingCollectionClass();
-			this.txtView.Value = obj.WithBlocking();
+			obj.Log += new BlockingCollectionClass.LogHandler((s,e) => (this.txtView.Value = e.Message));
+			
+			obj.WithBlocking();
 			//this.txtView.Value = obj.WithBounding();
 
 			// Original, blocks the UI thread

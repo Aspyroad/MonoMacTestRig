@@ -12,12 +12,16 @@ namespace Sample.WithBlocking
 
 	public class BlockingCollectionClass
 	{
+		// LogHandler
+		public event LogHandler Log;
+		public delegate void LogHandler(object sender, LogDataEventArgs _message);
+		// *********
+		
 		object lockObject = new object();
 		private string _message= "";
 		
 		public BlockingCollectionClass()
 		{
-
 		}
 		
 		protected string message
@@ -36,11 +40,20 @@ namespace Sample.WithBlocking
 				lock (lockObject)
 				{
 					_message = value;
-					// Raise an event
+					// Raise the event.
+					this.OnLog(this, new LogDataEventArgs(_message));
 				}
 			}
 		}
 		
+		protected virtual void OnLog(object sender, LogDataEventArgs _message)
+		{
+			if (Log != null)
+			{
+				Log(sender, _message);// Raise the event
+			}
+		}
+				
 		/*
 		WithBlocking demonstrates two ways to consume a BlockingCollection.
 		Task1, utilizes GetConsumingEnumerables and a foreach loop. 
@@ -64,6 +77,7 @@ namespace Sample.WithBlocking
 			//Producer - Pulls numbers from the array
 			var task0 = Task.Factory.StartNew(() =>
 			{
+				
 				foreach (int i in items)
 				{
 					stage1.Add(i);
@@ -298,6 +312,20 @@ namespace Sample.WithBlocking
 			message += ("Completed.  Press any key to quit..." + Environment.NewLine);	
 			return message;
 		}
+	}
+	
+	// The class to hold the information about the event
+	// in this case it will hold only information
+	// available in the clock class, but could hold
+	// additional state information
+	public class LogDataEventArgs : EventArgs
+	{
+		public LogDataEventArgs(string _message)
+		{
+			this.Message = _message;
+		}
+		public readonly string Message;
+
 	}
 
 	public class TaskQueue<T> : IDisposable where T : class
