@@ -18,6 +18,7 @@ namespace MonoMacTest
 	{
 
 		private TaskScheduler scheduler = null;
+		private BlockingCollectionClass obj;
 		private string message;
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " MainForm." + Environment.NewLine;
 		private int counter;
@@ -48,6 +49,9 @@ namespace MonoMacTest
 		{
 			// Need to learn a little more about this task scheduler
 			this.scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+			obj = new Sample.WithBlocking.BlockingCollectionClass();
+			// Hook up our logoutput - Message is threadsafe!
+			obj.Log += new BlockingCollectionClass.LogHandler(OnNewMessage);
 		}
 
 		#endregion
@@ -68,7 +72,7 @@ namespace MonoMacTest
 			this.txtView.BeginInvokeOnMainThread(() => (this.txtView.Value = this.message));
 		}
 
-		partial void btn_execute(NSObject sender)
+		partial void btn_WithBlocking(NSObject sender)
 		{
 			//avoid cross thread accessing of controls by storing values from controls in variables     
 			//int lower = int.Parse(this.txtLow.StringValue);
@@ -77,8 +81,8 @@ namespace MonoMacTest
 			//Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
 			//	.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
 			
-			var obj = new Sample.WithBlocking.BlockingCollectionClass();
-			obj.Log += new BlockingCollectionClass.LogHandler(OnNewMessage);
+
+
 
 			obj.WithBlocking();
 

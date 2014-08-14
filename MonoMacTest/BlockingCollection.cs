@@ -87,7 +87,7 @@ namespace Sample.WithBlocking
 						+ " Producer - Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
 				}
 
-				message += "Producer Finished - Loaded all items into stage 1..." + Environment.NewLine;
+				message += "Producer - Finished - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
 
 			});
@@ -106,7 +106,7 @@ namespace Sample.WithBlocking
 						+ " Consumer1 - Stage 1 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 				
 				}
-				message += "Consumer1 Emptied all items from Stage 1..." + Environment.NewLine;
+				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
 			});
 			
@@ -122,7 +122,7 @@ namespace Sample.WithBlocking
 					}
 					catch (InvalidOperationException) //Take throws exception when completed
 					{
-						message += "Consumer2 Emptied all items from Stage 2..." + Environment.NewLine;
+						message += "Consumer2 - Emptied all items from Stage 2..." + Environment.NewLine;
 						break;
 					}
 
@@ -132,12 +132,10 @@ namespace Sample.WithBlocking
 						+ " Consumer2 - Stage 2 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
 				}
-			});
+				}).ContinueWith(() => (message += "Completed." + Environment.NewLine));
 
 			
 			Task.WhenAll(task0, task1, task2);
-			
-			message += "Consumer2 Completed." + Environment.NewLine;
 			
 			return message;
 		}
@@ -155,7 +153,7 @@ namespace Sample.WithBlocking
 		Thus, the Add method in Task0 halts until Task1 consumes an integer.
 		*/
 		
-		public string WithBounding()
+		public string WithBounding(int boundvalue)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -163,7 +161,7 @@ namespace Sample.WithBlocking
 
 			message += "Producer...Starting...WithBounding" + Environment.NewLine;
 
-			var stage1 = new BlockingCollection<int>(1);
+			var stage1 = new BlockingCollection<int>(boundvalue);
 			var stage2 = new BlockingCollection<int>();
 
 			//Pulls numbers from the array
@@ -242,16 +240,16 @@ namespace Sample.WithBlocking
 		Changing the Sleep values in Task1 and Task2 has some interesting effects and really demonstrates shifting bottlenecks in code.
 		*/		
 		
-		public string WithoutBlocking()
+		public string WithoutBlocking(int boundvalue)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			var startTime = DateTime.Now;
 
-			message += "Starting...WithoutBlocking" + Environment.NewLine;
+			message += "Producer...Starting...WithoutBlocking" + Environment.NewLine;
 
 			var stage1 = new BlockingCollection<int>();
-			var stage2 = new BlockingCollection<int>(1);//Required to force the TryAdd delay
+			var stage2 = new BlockingCollection<int>(boundvalue);//Required to force the TryAdd delay
 
 			//Pulls numbers from the array
 			var task0 = Task.Factory.StartNew(() =>
@@ -259,10 +257,11 @@ namespace Sample.WithBlocking
 				foreach (int i in items)
 				{
 					stage1.Add(i);
-					message += ("Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
+					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
+						+ "Producer - Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
 				}
 
-				message += "Loaded all items into stage 1..." + Environment.NewLine;
+				message += "Producer - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
 
 			});
@@ -275,11 +274,13 @@ namespace Sample.WithBlocking
 				{
 					if (stage1.TryTake(out i,100))
 					{
-						message += ("Stage 1 Process: " + i.ToString() + "elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
+							+ " Consumer1 - Stage 1 Process: " + i.ToString() + "elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
 						while (!stage2.TryAdd(i, new TimeSpan(0, 0, 0,0,300))) 
 						{ 
-							message += ("Attempt to add " + i.ToString() + " expired elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine); 
+							message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
+								+ " Consumer1 - Attempt to add " + i.ToString() + " expired elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine); 
 						}
 
 						//Pause X miliseconds simulating work
@@ -288,7 +289,7 @@ namespace Sample.WithBlocking
 						Thread.Sleep(new TimeSpan(0, 0, 0,0,2000));
 					}
 				}
-				message += "Emptied all items from Stage 1..." + Environment.NewLine;
+				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
 			});
 
@@ -300,16 +301,17 @@ namespace Sample.WithBlocking
 				{
 					if (stage2.TryTake(out i,300))
 					{
-						message += ("Stage 2 Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
+							 + " Consumer2 - Stage 2 Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 						//Pause a little over half second to simulate work
 						Thread.Sleep(new TimeSpan(0, 0, 0, 0, 600));
 					}
 					else
 					{
-						message += ("Stage 2 Wait timeout exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
+							+ " Consumer2 - Stage 2 Wait timeout exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 					}
 				}
-
 			});
 
 			Task.WaitAll(task0, task1, task2);

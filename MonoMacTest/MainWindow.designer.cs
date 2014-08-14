@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Xamarin Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -13,7 +13,16 @@ namespace MonoMacTest
 	partial class MainWindowController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSButton btnExecute { get; set; }
+		MonoMac.AppKit.NSButton btnCountPrimes { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton btnWithBlocking { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton btnWithBounding { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton btnWithoutBlocking { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSScrollView txtBox { get; set; }
@@ -27,14 +36,29 @@ namespace MonoMacTest
 		[Outlet]
 		MonoMac.AppKit.NSTextView txtView { get; set; }
 
-		[Action ("btn_execute:")]
-		partial void btn_execute (MonoMac.Foundation.NSObject sender);
+		[Outlet]
+		MonoMac.AppKit.NSTextField txtWithBounding { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField txtWithoutBlocking { get; set; }
+
+		[Action ("btn_CountPrimes:")]
+		partial void btn_CountPrimes (MonoMac.Foundation.NSObject sender);
+
+		[Action ("btn_WithBlocking:")]
+		partial void btn_WithBlocking (MonoMac.Foundation.NSObject sender);
+
+		[Action ("btn_WithBounding:")]
+		partial void btn_WithBounding (MonoMac.Foundation.NSObject sender);
+
+		[Action ("btn_WithoutBlocking:")]
+		partial void btn_WithoutBlocking (MonoMac.Foundation.NSObject sender);
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (btnExecute != null) {
-				btnExecute.Dispose ();
-				btnExecute = null;
+			if (btnCountPrimes != null) {
+				btnCountPrimes.Dispose ();
+				btnCountPrimes = null;
 			}
 
 			if (txtBox != null) {
@@ -55,6 +79,31 @@ namespace MonoMacTest
 			if (txtView != null) {
 				txtView.Dispose ();
 				txtView = null;
+			}
+
+			if (btnWithBlocking != null) {
+				btnWithBlocking.Dispose ();
+				btnWithBlocking = null;
+			}
+
+			if (btnWithBounding != null) {
+				btnWithBounding.Dispose ();
+				btnWithBounding = null;
+			}
+
+			if (btnWithoutBlocking != null) {
+				btnWithoutBlocking.Dispose ();
+				btnWithoutBlocking = null;
+			}
+
+			if (txtWithBounding != null) {
+				txtWithBounding.Dispose ();
+				txtWithBounding = null;
+			}
+
+			if (txtWithoutBlocking != null) {
+				txtWithoutBlocking.Dispose ();
+				txtWithoutBlocking = null;
 			}
 		}
 	}
