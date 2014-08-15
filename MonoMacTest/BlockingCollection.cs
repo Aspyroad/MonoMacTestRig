@@ -31,12 +31,14 @@ namespace Sample.WithBlocking
 		
 		#region Variables
 		object lockObject = new object();
+		public CancellationTokenSource tokenSource;
 		private string _message= "";
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " BlockingClass." + Environment.NewLine;
 		#endregion
 		
 		public BlockingCollectionClass()
 		{
+			tokenSource = new CancellationTokenSource();
 		}
 		
 		protected string message
@@ -60,6 +62,11 @@ namespace Sample.WithBlocking
 				}
 			}
 		}		
+
+		public void ClearMessage()
+		{
+			this.message = "";
+		}
 				
 		/*
 		WithBlocking demonstrates two ways to consume a BlockingCollection.
@@ -96,7 +103,7 @@ namespace Sample.WithBlocking
 				message += "Producer - Finished - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
 
-			});
+				}, tokenSource.Token);
 
 			// Consumer1 - Reads and passes data onto next stage
 			var task1 = Task.Factory.StartNew(() =>
@@ -114,7 +121,7 @@ namespace Sample.WithBlocking
 				}
 				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
-			});
+				},tokenSource.Token);
 			
 			// Consumer2 - Reads prints data
 			var task2 = Task.Factory.StartNew(() =>
@@ -138,7 +145,8 @@ namespace Sample.WithBlocking
 						+ " Consumer2 - Stage 2 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
 				}
-			}).ContinueWith((prevtask) => {message += "WithBlocking Example - Completed." + Environment.NewLine;});
+			}, tokenSource.Token)
+				.ContinueWith((prevtask) => {message += "WithBlocking Example - Completed." + Environment.NewLine;});
 
 			
 			Task.WhenAll(task0, task1, task2);
@@ -244,7 +252,7 @@ namespace Sample.WithBlocking
 		Changing the Sleep values in Task1 and Task2 has some interesting effects and really demonstrates shifting bottlenecks in code.
 		*/		
 		
-		public void WithoutBlocking(int boundvalue)
+		public void WithoutBlocking(int boundvalue, int stage1timeout, int stage2timeout)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -268,7 +276,7 @@ namespace Sample.WithBlocking
 				message += "Producer - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
 
-			});
+			}, tokenSource.Token);
 
 			//Reads and passes data onto next stage
 			var task1 = Task.Factory.StartNew(() =>
@@ -276,12 +284,12 @@ namespace Sample.WithBlocking
 				int i = -1;
 				while (!stage1.IsCompleted)
 				{
-					if (stage1.TryTake(out i,100))
+						if (stage1.TryTake(out i, stage1timeout))
 					{
 						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
-							+ " Consumer1 - Stage 1 Process: " + i.ToString() + "elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+							+ " Consumer1 - Stage 1 Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
-						while (!stage2.TryAdd(i, new TimeSpan(0, 0, 0,0,300))) 
+							while (!stage2.TryAdd(i, new TimeSpan(0, 0, 0, 0, stage2timeout))) 
 						{ 
 							message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
 								+ " Consumer1 - Attempt to add " + i.ToString() + " expired elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine); 
@@ -300,7 +308,7 @@ namespace Sample.WithBlocking
 				}
 				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
-			});
+			}, tokenSource.Token);
 
 			//Reads prints data
 			var task2 = Task.Factory.StartNew(() =>
@@ -321,7 +329,8 @@ namespace Sample.WithBlocking
 							+ " Consumer2 - TIMEOUT Stage2 Trytake: exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 					}
 				}
-			}).ContinueWith((prevtask) => {message += "WithoutBlocking Example - Completed." + Environment.NewLine;});
+			}, tokenSource.Token)
+				.ContinueWith((prevtask) => {message += "WithoutBlocking Example - Completed." + Environment.NewLine;});
 
 			Task.WhenAll(task0, task1, task2);
 		}

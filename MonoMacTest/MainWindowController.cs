@@ -144,7 +144,11 @@ namespace MonoMacTest
 		
 		partial void btn_WithoutBlocking(NSObject sender)
 		{
+			bool bCancel = false;
+
 			this.txtView.Value = "";
+
+			#region BoundCheck
 			int intBound;
 			string strBound = this.txtWithoutBlocking.StringValue;
 			if (strBound.Length == 0)
@@ -155,8 +159,39 @@ namespace MonoMacTest
 			{
 				intBound = int.Parse(strBound);
 			}
+			#endregion
 
-			obj.WithoutBlocking(intBound);
+			#region Stage1TimeoutCheck
+			int intStage1Timeout;
+			string strStage1Timeout = this.txtStage1Timeout.StringValue;
+			if (strStage1Timeout.Length == 0)
+			{
+				intStage1Timeout = 8;
+			}
+			else
+			{
+				intStage1Timeout = int.Parse(strStage1Timeout);
+			}
+			#endregion
+
+			#region Stage2TimeoutCheck
+			int intStage2Timeout;
+			string strStage2Timeout = this.txtStage2Timeout.StringValue;
+			if (strStage2Timeout.Length == 0)
+			{
+				intStage2Timeout = 8;
+			}
+			else
+			{
+				intStage2Timeout = int.Parse(strStage2Timeout);
+			}
+			#endregion
+
+			obj.WithoutBlocking(intBound, intStage1Timeout, intStage2Timeout);
+			this.btnWithoutBlocking.Title = "Cancel";
+			bCancel = true;
+
+			obj.ClearMessage();
 		}
 	}
 }

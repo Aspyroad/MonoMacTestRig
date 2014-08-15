@@ -34,6 +34,12 @@ namespace MonoMacTest
 		MonoMac.AppKit.NSTextField txtLow { get; set; }
 
 		[Outlet]
+		MonoMac.AppKit.NSTextField txtStage1Timeout { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSTextField txtStage2Timeout { get; set; }
+
+		[Outlet]
 		MonoMac.AppKit.NSTextView txtView { get; set; }
 
 		[Outlet]
@@ -61,6 +67,21 @@ namespace MonoMacTest
 				btnCountPrimes = null;
 			}
 
+			if (btnWithBlocking != null) {
+				btnWithBlocking.Dispose ();
+				btnWithBlocking = null;
+			}
+
+			if (btnWithBounding != null) {
+				btnWithBounding.Dispose ();
+				btnWithBounding = null;
+			}
+
+			if (btnWithoutBlocking != null) {
+				btnWithoutBlocking.Dispose ();
+				btnWithoutBlocking = null;
+			}
+
 			if (txtBox != null) {
 				txtBox.Dispose ();
 				txtBox = null;
@@ -81,21 +102,6 @@ namespace MonoMacTest
 				txtView = null;
 			}
 
-			if (btnWithBlocking != null) {
-				btnWithBlocking.Dispose ();
-				btnWithBlocking = null;
-			}
-
-			if (btnWithBounding != null) {
-				btnWithBounding.Dispose ();
-				btnWithBounding = null;
-			}
-
-			if (btnWithoutBlocking != null) {
-				btnWithoutBlocking.Dispose ();
-				btnWithoutBlocking = null;
-			}
-
 			if (txtWithBounding != null) {
 				txtWithBounding.Dispose ();
 				txtWithBounding = null;
@@ -104,6 +110,16 @@ namespace MonoMacTest
 			if (txtWithoutBlocking != null) {
 				txtWithoutBlocking.Dispose ();
 				txtWithoutBlocking = null;
+			}
+
+			if (txtStage1Timeout != null) {
+				txtStage1Timeout.Dispose ();
+				txtStage1Timeout = null;
+			}
+
+			if (txtStage2Timeout != null) {
+				txtStage2Timeout.Dispose ();
+				txtStage2Timeout = null;
 			}
 		}
 	}
