@@ -12,14 +12,28 @@ namespace Sample.WithBlocking
 
 	public class BlockingCollectionClass
 	{
+		
+		#region Event Handling
 		// LogHandler
 		public event LogHandler Log;
 		public delegate void LogHandler(object sender, LogDataEventArgs _message);
 		// *********
 		
+		protected virtual void OnLog(object sender, LogDataEventArgs _message)
+		{
+			if (Log != null)
+			{
+				Log(sender, _message);// Raise the event
+			}
+		}
+		
+		#endregion
+		
+		#region Variables
 		object lockObject = new object();
 		private string _message= "";
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " BlockingClass." + Environment.NewLine;
+		#endregion
 		
 		public BlockingCollectionClass()
 		{
@@ -45,15 +59,7 @@ namespace Sample.WithBlocking
 					this.OnLog(this, new LogDataEventArgs(_message));
 				}
 			}
-		}
-		
-		protected virtual void OnLog(object sender, LogDataEventArgs _message)
-		{
-			if (Log != null)
-			{
-				Log(sender, _message);// Raise the event
-			}
-		}
+		}		
 				
 		/*
 		WithBlocking demonstrates two ways to consume a BlockingCollection.
@@ -64,7 +70,7 @@ namespace Sample.WithBlocking
 		The try/catch block is required because, according to the documentation, InvalidOperationException is thrown when the collection is marked complete.
 		*/
 			
-		public string WithBlocking()
+		public void WithBlocking()
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -97,14 +103,14 @@ namespace Sample.WithBlocking
 			{
 
 				foreach (var i in stage1.GetConsumingEnumerable())
-				{
-					stage2.Add(i);
-					
+				{					
 					//Pause 2 seconds simulating work
-					Thread.Sleep(new TimeSpan(0, 0, 3));
+					Thread.Sleep(new TimeSpan(0, 0, 1));
 					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
 						+ " Consumer1 - Stage 1 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
-				
+					
+					// ****** This will instantly start task 2...
+					stage2.Add(i);				
 				}
 				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
@@ -127,17 +133,16 @@ namespace Sample.WithBlocking
 					}
 
 					//Pause a little over half second to simulate work
-					Thread.Sleep(new TimeSpan(0, 0, 0, 0, 900));
+					Thread.Sleep(new TimeSpan(0, 0, 0, 0, 300));
 					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
 						+ " Consumer2 - Stage 2 Work Completed: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 
 				}
-				}).ContinueWith(() => (message += "Completed." + Environment.NewLine));
+			}).ContinueWith((prevtask) => {message += "WithBlocking Example - Completed." + Environment.NewLine;});
 
 			
 			Task.WhenAll(task0, task1, task2);
-			
-			return message;
+
 		}
 		
 		/*
@@ -153,12 +158,13 @@ namespace Sample.WithBlocking
 		Thus, the Add method in Task0 halts until Task1 consumes an integer.
 		*/
 		
-		public string WithBounding(int boundvalue)
+		public void WithBounding(int boundvalue)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			var startTime = DateTime.Now;
-
+			
+			message += mesheader;
 			message += "Producer...Starting...WithBounding" + Environment.NewLine;
 
 			var stage1 = new BlockingCollection<int>(boundvalue);
@@ -185,12 +191,13 @@ namespace Sample.WithBlocking
 
 				foreach (var i in stage1.GetConsumingEnumerable())
 				{
-					stage2.Add(i);
 
 					//Pause 2 seconds simulating work
 					Thread.Sleep(new TimeSpan(0, 0, 2));
 					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
 						+ " Consumer1 - Stage 1 Work Complete: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+					
+					stage2.Add(i);
 
 				}
 
@@ -221,12 +228,9 @@ namespace Sample.WithBlocking
 				
 				}
 
-			});
+			}).ContinueWith((prevtask) => {message += "WithBounding Example - Completed." + Environment.NewLine;});
 
-			Task.WaitAll(task0, task1, task2);
-			message += "Completed.  Press any key to quit..." + Environment.NewLine;
-			return message;
-
+			Task.WhenAll(task0, task1, task2);
 		}
 				
 		/*
@@ -240,7 +244,7 @@ namespace Sample.WithBlocking
 		Changing the Sleep values in Task1 and Task2 has some interesting effects and really demonstrates shifting bottlenecks in code.
 		*/		
 		
-		public string WithoutBlocking(int boundvalue)
+		public void WithoutBlocking(int boundvalue)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -288,6 +292,11 @@ namespace Sample.WithBlocking
 						//to see impact
 						Thread.Sleep(new TimeSpan(0, 0, 0,0,2000));
 					}
+					else
+					{
+						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
+							+ " Consumer1 - TIMEOUT Stage1 - trytake: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);						
+					}
 				}
 				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
@@ -309,14 +318,12 @@ namespace Sample.WithBlocking
 					else
 					{
 						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
-							+ " Consumer2 - Stage 2 Wait timeout exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+							+ " Consumer2 - TIMEOUT Stage2 Trytake: exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 					}
 				}
-			});
+			}).ContinueWith((prevtask) => {message += "WithoutBlocking Example - Completed." + Environment.NewLine;});
 
-			Task.WaitAll(task0, task1, task2);
-			message += ("Completed.  Press any key to quit..." + Environment.NewLine);	
-			return message;
+			Task.WhenAll(task0, task1, task2);
 		}
 	}
 	

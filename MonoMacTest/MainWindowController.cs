@@ -71,27 +71,39 @@ namespace MonoMacTest
 			this.message = mesheader + e.Message;
 			this.txtView.BeginInvokeOnMainThread(() => (this.txtView.Value = this.message));
 		}
-
-		partial void btn_WithBlocking(NSObject sender)
+		
+		partial void btn_CountPrimes(NSObject sender)
 		{
-			//avoid cross thread accessing of controls by storing values from controls in variables     
-			//int lower = int.Parse(this.txtLow.StringValue);
-			//int upper = int.Parse(this.txtHigh.StringValue);
+			//avoid cross thread accessing of controls by storing values from controls in variables
+			int lower;
+			int upper;
+			string low = (this.txtLow.StringValue);
+			string high = (this.txtHigh.StringValue);
+			
+			if (low.Length == 0)
+			{
+				lower = 0;
+			}
+			else
+			{
+				lower = int.Parse(low);
+			}
+			
+			if (high.Length == 0)
+			{
+				upper = 0;
+			}
+			else
+			{
+				upper = int.Parse(high);
+			}			
+					
 			// New task version		
-			//Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
-			//	.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler);  ;
+			Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
+				.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler); 
 			
-
-
-
-			obj.WithBlocking();
-
-			//this.txtView.Value = message;
-			//this.txtView.Value = obj.WithBounding();
-
-			// Original, blocks the UI thread
+			// Original, blocks the UI thread - NO GOOD!
 			//this.txtView.Value += this.getPrimesInRange(int.Parse(this.txtLow.StringValue), int.Parse(this.txtHigh.StringValue)).Count().ToString() + Environment.NewLine;
-			
 		}
 		
 		private IEnumerable<int> getPrimesInRange(int inclusiveStartValue, int exclusiveEndValue)
@@ -105,6 +117,47 @@ namespace MonoMacTest
 			var ii = (from n in numbers where (!(n <= 1) && Enumerable.Range(2, (int)Math.Sqrt(n == 2 ? 0 : n)).All(i => n % i > 0)) select n).ToList();
 			return ii;
 		}			
+		
+		partial void btn_WithBlocking(NSObject sender)
+		{
+			this.txtView.Value = "";
+			obj.WithBlocking();
+
+		}
+		
+		partial void btn_WithBounding(NSObject sender)
+		{
+			this.txtView.Value = "";
+			int intBound;
+			string strBound = this.txtWithBounding.StringValue;
+			if (strBound.Length == 0)
+			{
+				intBound = 8;
+			}
+			else
+			{
+				intBound = int.Parse(strBound);
+			}
+			
+			obj.WithBounding(intBound);
+		}
+		
+		partial void btn_WithoutBlocking(NSObject sender)
+		{
+			this.txtView.Value = "";
+			int intBound;
+			string strBound = this.txtWithoutBlocking.StringValue;
+			if (strBound.Length == 0)
+			{
+				intBound = 8;
+			}
+			else
+			{
+				intBound = int.Parse(strBound);
+			}
+
+			obj.WithoutBlocking(intBound);
+		}
 	}
 }
 
