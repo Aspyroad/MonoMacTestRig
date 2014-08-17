@@ -16,12 +16,12 @@ namespace MonoMacTest
 
 	public partial class MainWindowController : MonoMac.AppKit.NSWindowController
 	{
-
-		private TaskScheduler scheduler = null;
 		private BlockingCollectionClass obj;
 		private string message;
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " MainForm." + Environment.NewLine;
 		private int counter;
+		private TaskScheduler _scheduler;
+		private bool bCancel = false;
 				
 		#region Constructors
 
@@ -47,11 +47,12 @@ namespace MonoMacTest
 		// Shared initialization code
 		void Initialize()
 		{
-			// Need to learn a little more about this task scheduler
-			this.scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			obj = new Sample.WithBlocking.BlockingCollectionClass();
 			// Hook up our logoutput - Message is threadsafe!
-			obj.Log += new BlockingCollectionClass.LogHandler(OnNewMessage);
+			//obj.Log += new BlockingCollectionClass.LogHandler(OnNewMessage);
+			obj.Log += OnNewMessage;
+			obj.AllTasksCompleted += OnTaskCompletion;
+			this._scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 
 		#endregion
@@ -70,6 +71,12 @@ namespace MonoMacTest
 			counter += 1;
 			this.message = mesheader + e.Message;
 			this.txtView.BeginInvokeOnMainThread(() => (this.txtView.Value = this.message));
+		}
+		
+		private void OnTaskCompletion(object sender, CompletedEventArgs e)
+		{
+			this.btnWithoutBlocking.BeginInvokeOnMainThread(() => (this.btnWithoutBlocking.Title = "WithoutBlock"));
+			this.bCancel = false;
 		}
 		
 		partial void btn_CountPrimes(NSObject sender)
@@ -100,7 +107,7 @@ namespace MonoMacTest
 					
 			// New task version		
 			Task.Factory.StartNew<int>(() => this.getPrimesInRange(lower, upper).Count())
-				.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this.scheduler); 
+				.ContinueWith((i) => this.txtView.Value += i.Result.ToString() + Environment.NewLine, this._scheduler); 
 			
 			// Original, blocks the UI thread - NO GOOD!
 			//this.txtView.Value += this.getPrimesInRange(int.Parse(this.txtLow.StringValue), int.Parse(this.txtHigh.StringValue)).Count().ToString() + Environment.NewLine;
@@ -143,10 +150,23 @@ namespace MonoMacTest
 		}
 		
 		partial void btn_WithoutBlocking(NSObject sender)
-		{
-			bool bCancel = false;
+		{		
+			CancellationTokenSource tokenSource = new CancellationTokenSource();
+			
+			if (this.bCancel)
+			{	
+					
+				obj.ClearMessage();
+				this.txtView.Value = "";
+				//********EXIT POINT
+			}
+			else
+			{
+				tokenSource.Cancel();
+				this.bCancel = false;
+				return;	
+			}
 
-			this.txtView.Value = "";
 
 			#region BoundCheck
 			int intBound;
@@ -166,7 +186,7 @@ namespace MonoMacTest
 			string strStage1Timeout = this.txtStage1Timeout.StringValue;
 			if (strStage1Timeout.Length == 0)
 			{
-				intStage1Timeout = 8;
+				intStage1Timeout = 100;
 			}
 			else
 			{
@@ -179,7 +199,7 @@ namespace MonoMacTest
 			string strStage2Timeout = this.txtStage2Timeout.StringValue;
 			if (strStage2Timeout.Length == 0)
 			{
-				intStage2Timeout = 8;
+				intStage2Timeout = 300;
 			}
 			else
 			{
@@ -187,12 +207,17 @@ namespace MonoMacTest
 			}
 			#endregion
 
-			obj.WithoutBlocking(intBound, intStage1Timeout, intStage2Timeout);
 			this.btnWithoutBlocking.Title = "Cancel";
 			bCancel = true;
-
-			obj.ClearMessage();
+			
+			obj.WithoutBlocking(intBound, intStage1Timeout, intStage2Timeout);
+			
+			
+			//this.btnWithoutBlocking.Title = "WithoutBlock";
+			//bCancel = false;
+						
 		}
+		
 	}
 }
 

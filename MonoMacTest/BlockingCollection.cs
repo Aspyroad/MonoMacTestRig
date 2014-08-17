@@ -27,18 +27,37 @@ namespace Sample.WithBlocking
 			}
 		}
 		
+		// ConpletionHandler
+		public event EventHandler<CompletedEventArgs> AllTasksCompleted;
+		// *********
+		protected virtual void OnAllTasksCompleted(CompletedEventArgs e)
+		{
+			EventHandler<CompletedEventArgs> handler = AllTasksCompleted;
+			if (handler != null)
+			{
+				handler(this, e);
+			}
+		}		
 		#endregion
 		
 		#region Variables
 		object lockObject = new object();
 		public CancellationTokenSource tokenSource;
+		public TaskContinuationOptions taskOptions;
+		//public Task fTask;
+		//private TaskScheduler _scheduler = null;
+		
 		private string _message= "";
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " BlockingClass." + Environment.NewLine;
 		#endregion
 		
 		public BlockingCollectionClass()
 		{
-			tokenSource = new CancellationTokenSource();
+			taskOptions = new TaskContinuationOptions();
+			taskOptions = TaskContinuationOptions.None;
+			
+			// Need to learn a little more about this task scheduler
+			//this.scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 		
 		protected string message
@@ -102,13 +121,14 @@ namespace Sample.WithBlocking
 
 				message += "Producer - Finished - Loaded all items into stage 1..." + Environment.NewLine;
 				stage1.CompleteAdding();
+				//return null;
 
-				}, tokenSource.Token);
+			}, tokenSource.Token);
 
 			// Consumer1 - Reads and passes data onto next stage
 			var task1 = Task.Factory.StartNew(() =>
 			{
-
+				
 				foreach (var i in stage1.GetConsumingEnumerable())
 				{					
 					//Pause 2 seconds simulating work
@@ -121,7 +141,7 @@ namespace Sample.WithBlocking
 				}
 				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
 				stage2.CompleteAdding();
-				},tokenSource.Token);
+			},tokenSource.Token);
 			
 			// Consumer2 - Reads prints data
 			var task2 = Task.Factory.StartNew(() =>
@@ -252,11 +272,12 @@ namespace Sample.WithBlocking
 		Changing the Sleep values in Task1 and Task2 has some interesting effects and really demonstrates shifting bottlenecks in code.
 		*/		
 		
-		public void WithoutBlocking(int boundvalue, int stage1timeout, int stage2timeout)
+		public void WithoutBlocking(int boundvalue, int stage1timeout, int stage2timeout, CancellationTokenSource tokenSource)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
 			var startTime = DateTime.Now;
+			
 
 			message += "Producer...Starting...WithoutBlocking" + Environment.NewLine;
 
@@ -268,13 +289,25 @@ namespace Sample.WithBlocking
 			{
 				foreach (int i in items)
 				{
+					if (tokenSource.IsCancellationRequested)
+					{
+						break;
+					}
+					
 					stage1.Add(i);
 					message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString() 
 						+ "Producer - Add:" + i.ToString() + " Count=" + stage1.Count.ToString() + Environment.NewLine);
 				}
-
-				message += "Producer - Loaded all items into stage 1..." + Environment.NewLine;
-				stage1.CompleteAdding();
+				
+				if (tokenSource.IsCancellationRequested)
+				{
+					message += "Producer - Cancellation requested, exiting..." + Environment.NewLine;
+				}
+				else
+				{
+					message += "Producer - Loaded all items into stage 1..." + Environment.NewLine;
+					stage1.CompleteAdding();
+				}				
 
 			}, tokenSource.Token);
 
@@ -284,7 +317,12 @@ namespace Sample.WithBlocking
 				int i = -1;
 				while (!stage1.IsCompleted)
 				{
-						if (stage1.TryTake(out i, stage1timeout))
+					if (tokenSource.IsCancellationRequested)
+					{
+						break;
+					}
+					
+					if (stage1.TryTake(out i, stage1timeout))
 					{
 						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
 							+ " Consumer1 - Stage 1 Process: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
@@ -306,8 +344,15 @@ namespace Sample.WithBlocking
 							+ " Consumer1 - TIMEOUT Stage1 - trytake: " + i.ToString() + " elapsed " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);						
 					}
 				}
-				message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
-				stage2.CompleteAdding();
+				if (tokenSource.IsCancellationRequested)
+				{
+					message += "Consumer1 - Cancellation requested, exiting..." + Environment.NewLine;
+				}
+				else
+				{
+					message += "Consumer1 - Emptied all items from Stage 1..." + Environment.NewLine;
+					stage2.CompleteAdding();
+				}
 			}, tokenSource.Token);
 
 			//Reads prints data
@@ -316,6 +361,11 @@ namespace Sample.WithBlocking
 				int i = -1;
 				while (!stage2.IsCompleted)
 				{
+					if (tokenSource.IsCancellationRequested)
+					{
+						break;
+					}
+					
 					if (stage2.TryTake(out i,300))
 					{
 						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
@@ -330,9 +380,23 @@ namespace Sample.WithBlocking
 					}
 				}
 			}, tokenSource.Token)
-				.ContinueWith((prevtask) => {message += "WithoutBlocking Example - Completed." + Environment.NewLine;});
+				.ContinueWith((prevtask) => 
+				{
+					message += "WithoutBlocking Example - Completed." + Environment.NewLine;
+					
+					// Simple test for checking propagation of exceptions.
+					// This works fine, simply check the task.WhenAll result, it will say faulted with a list of the exceptions thrown...easy
+					//throw new System.NotImplementedException();
+									
+				}, tokenSource.Token, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
 
-			Task.WhenAll(task0, task1, task2);
+			Task.WhenAll(task0, task1, task2)
+				.ContinueWith((prevTask) =>
+				{
+					CompletedEventArgs e = new CompletedEventArgs(prevTask);
+					OnAllTasksCompleted(e);
+				});		
+			
 		}
 	}
 	
@@ -347,7 +411,15 @@ namespace Sample.WithBlocking
 			this.Message = _message;
 		}
 		public readonly string Message;
-
+	}
+	
+	public class CompletedEventArgs : EventArgs
+	{
+		public CompletedEventArgs(Task _task)
+		{
+			task = _task;
+		}		
+		public Task task;		
 	}
 
 	public class TaskQueue<T> : IDisposable where T : class
