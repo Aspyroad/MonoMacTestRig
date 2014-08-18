@@ -41,21 +41,13 @@ namespace Sample.WithBlocking
 		#endregion
 		
 		#region Variables
-		object lockObject = new object();
-		public CancellationTokenSource tokenSource;
-		public TaskContinuationOptions taskOptions;
-		//public Task fTask;
-		//private TaskScheduler _scheduler = null;
-		
+		object lockObject = new object();		
 		private string _message= "";
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " BlockingClass." + Environment.NewLine;
 		#endregion
 		
 		public BlockingCollectionClass()
 		{
-			taskOptions = new TaskContinuationOptions();
-			taskOptions = TaskContinuationOptions.None;
-			
 			// Need to learn a little more about this task scheduler
 			//this.scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
@@ -96,7 +88,7 @@ namespace Sample.WithBlocking
 		The try/catch block is required because, according to the documentation, InvalidOperationException is thrown when the collection is marked complete.
 		*/
 			
-		public void WithBlocking()
+		public void WithBlocking(CancellationTokenSource tokenSource)
 		{
 
 			int[] items = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -376,7 +368,7 @@ namespace Sample.WithBlocking
 					else
 					{
 						message += ("T" + Thread.CurrentThread.ManagedThreadId.ToString()
-							+ " Consumer2 - TIMEOUT Stage2 Trytake: exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
+								+ " Consumer2 - TIMEOUT Stage2 [Try take]: exceeded at " + DateTime.Now.Subtract(startTime).TotalSeconds.ToString() + Environment.NewLine);
 					}
 				}
 			}, tokenSource.Token)
@@ -395,8 +387,7 @@ namespace Sample.WithBlocking
 				{
 					CompletedEventArgs e = new CompletedEventArgs(prevTask);
 					OnAllTasksCompleted(e);
-				});		
-			
+				});				
 		}
 	}
 	

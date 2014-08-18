@@ -21,6 +21,7 @@ namespace MonoMacTest
 		private string mesheader = "T" + Thread.CurrentThread.ManagedThreadId.ToString() + " MainForm." + Environment.NewLine;
 		private int counter;
 		private TaskScheduler _scheduler;
+		CancellationTokenSource tokenSource;
 		private bool bCancel = false;
 				
 		#region Constructors
@@ -77,6 +78,7 @@ namespace MonoMacTest
 		{
 			this.btnWithoutBlocking.BeginInvokeOnMainThread(() => (this.btnWithoutBlocking.Title = "WithoutBlock"));
 			this.bCancel = false;
+			this.tokenSource = null;
 		}
 		
 		partial void btn_CountPrimes(NSObject sender)
@@ -128,7 +130,7 @@ namespace MonoMacTest
 		partial void btn_WithBlocking(NSObject sender)
 		{
 			this.txtView.Value = "";
-			obj.WithBlocking();
+			obj.WithBlocking(tokenSource);
 
 		}
 		
@@ -150,23 +152,19 @@ namespace MonoMacTest
 		}
 		
 		partial void btn_WithoutBlocking(NSObject sender)
-		{		
-			CancellationTokenSource tokenSource = new CancellationTokenSource();
-			
-			if (this.bCancel)
+		{				
+			if (!this.bCancel)
 			{	
-					
+				this.tokenSource = new CancellationTokenSource();  	
 				obj.ClearMessage();
 				this.txtView.Value = "";
-				//********EXIT POINT
 			}
 			else
 			{
-				tokenSource.Cancel();
+				this.tokenSource.Cancel();
 				this.bCancel = false;
-				return;	
+				return;				//********EXIT POINT
 			}
-
 
 			#region BoundCheck
 			int intBound;
@@ -210,12 +208,10 @@ namespace MonoMacTest
 			this.btnWithoutBlocking.Title = "Cancel";
 			bCancel = true;
 			
-			obj.WithoutBlocking(intBound, intStage1Timeout, intStage2Timeout);
-			
-			
-			//this.btnWithoutBlocking.Title = "WithoutBlock";
-			//bCancel = false;
+			obj.WithoutBlocking(intBound, intStage1Timeout, intStage2Timeout, tokenSource);
 						
+			//this.btnWithoutBlocking.Title = "WithoutBlock";
+			//bCancel = false;						
 		}
 		
 	}
